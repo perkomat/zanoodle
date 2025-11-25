@@ -1,14 +1,14 @@
 // --- KONSTANTE ZA HITROST IN TOČKOVANJE ---
-const INITIAL_SPEED_MS = 300; // Počasen začetek
-const SPEED_INCREMENT_MS = 10; // Za toliko se bo interval zmanjšal na vsakih 10 točk
-const SCORE_PER_FOOD = 1;      // Vsaka hrana prinese 1 točko
+const INITIAL_SPEED_MS = 300; 
+const SPEED_INCREMENT_MS = 10; 
+const SCORE_PER_FOOD = 1;      
 
-// --- KONSTANTE ZA STIL ---
-const TILE_SIZE = 60; 
+// --- KONSTANTE ZA STIL IN VELIKOST ---
+const TILE_SIZE = 50; 
 
 // Vizualno povečanje glave in hrane brez vpliva na logiko
-const ENLARGED_HEAD_FACTOR = 1.1; 
-const ENLARGED_FOOD_FACTOR = 1.1; 
+const ENLARGED_HEAD_FACTOR = 1.3; 
+const ENLARGED_FOOD_FACTOR = 1.3; 
 
 const BODY_WIDTH = TILE_SIZE * 0.95; 
 const BODY_COLOR = '#FFD700'; 
@@ -20,8 +20,9 @@ const RELIEF_MARKER_RADIUS = TILE_SIZE * 0.45;
 const RELIEF_MARKER_COLOR = '#FFD700'; 
 const RELIEF_MARKER_STROKE_COLOR = '#000000'; 
 const RELIEF_MARKER_STROKE_WIDTH = 1.5; 
-const INTERPOLATION_STEPS = 6; // Gostota reliefnih oznak
+const INTERPOLATION_STEPS = 6; 
 
+const SWIPE_THRESHOLD = 20; // Minimalna razdalja v pikslih za prepoznavo potega
 
 // --- SPLOŠNE KONSTANTE IN INICIALIZACIJA ---
 const canvas = document.getElementById('gameCanvas');
@@ -38,7 +39,7 @@ let imagesLoadedCount = 0;
 // --- STANJE IGRE ---
 let snake;
 let velocity;
-let food = []; // Hrana je sedaj polje
+let food = []; // Hrana je polje
 
 
 // --- SLIKE IN NALAGANJE ---
@@ -72,21 +73,32 @@ foodImagesSrc.forEach(src => {
 
 // --- FUNKCIJE ZA PRIPRAVO IN HITROST ---
 
-// CELOZASLONSKI NAČIN
+// CELOZASLONSKI NAČIN Z ADAPTIVNIM SKALIRANJEM
 function resizeCanvas() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // Prilagoditev na velikost okna
-    let size = Math.min(width - 50, height - 150); 
+    // Preverimo, ali je naprava mobilna (majhen zaslon ali pokončna orientacija)
+    const isMobile = width < 768 || height > width; 
+
+    if (isMobile) {
+        // Na mobilcu: Poskrbimo, da canvas ni prevelik, da polja niso ogromna
+        let size = Math.min(width - 20, height - 100); 
+        size = Math.floor(size / TILE_SIZE) * TILE_SIZE;
+        
+        // Omejimo max velikost Canvasa na mobilnem telefonu (npr. 400x400 pikslov)
+        canvas.width = Math.min(size, 400); 
+        canvas.height = Math.min(size, 400); 
+    } else {
+        // Na PC/Desktop: Uporabimo večji del zaslona
+        let size = Math.min(width - 50, height - 150); 
+        size = Math.floor(size / TILE_SIZE) * TILE_SIZE;
+        
+        canvas.width = size;
+        canvas.height = size;
+    }
     
-    // Zagotovi, da je velikost deljiva s TILE_SIZE
-    size = Math.floor(size / TILE_SIZE) * TILE_SIZE;
-    
-    canvas.width = size;
-    canvas.height = size;
-    
-    TILE_COUNT = size / TILE_SIZE;
+    TILE_COUNT = canvas.width / TILE_SIZE;
 }
 
 function adjustSpeed() {
@@ -178,7 +190,6 @@ function gameLoop() {
         }
         
         adjustSpeed(); 
-        // Kača raste za SAMO 1 segment (zaradi unshift)
         
     } else {
         snake.pop();
@@ -214,7 +225,7 @@ function draw() {
     ctx.fillStyle = '#333';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // KLJUČNO ZA TRANSPARENTNOST PNG slik
+    // KLJUČNO ZA TRANSPARENTNOST PNG slik (prevzeta nastavitev, ki včasih potrebuje ponovno potrditev)
     ctx.globalCompositeOperation = 'source-over'; 
 
     // Nariši hrano (povečana slika)
@@ -300,10 +311,11 @@ function draw() {
 }
 
 
-// --- KONTROLE IN ZAGON ---
+// --- KONTROLE (PC in SWIPE za Mobilce) ---
 
 window.addEventListener('resize', resetGame);
 
+// Standardne kontrole za PC (Arrow keys, W A S D)
 document.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'ArrowUp':
@@ -328,34 +340,50 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-document.getElementById('mobile-controls').addEventListener('click', (e) => {
-    const direction = e.target.getAttribute('data-direction');
-    if (!direction) return;
+// Spremenljivke za sledenje potegu (swipe)
+let touchStartX = 0;
+let touchStartY = 0;
 
+canvas.addEventListener('touchstart', (e) => {
     if (isPaused) {
         resetGame();
         return;
     }
+    // Shranimo začetno pozicijo dotika
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+    e.preventDefault(); // Prepreči scroll in zoom
+}, { passive: false });
 
-    switch (direction) {
-        case 'UP':
-            if (velocity.y === 0) velocity = { x: 0, y: -1 };
-            break;
-        case 'DOWN':
-            if (velocity.y === 0) velocity = { x: 0, y: 1 };
-            break;
-        case 'LEFT':
-            if (velocity.x === 0) velocity = { x: -1, y: 0 };
-            break;
-        case 'RIGHT':
-            if (velocity.x === 0) velocity = { x: 1, y: 0 };
-            break;
+canvas.addEventListener('touchend', (e) => {
+    // Shranimo končno pozicijo dotika
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+
+    // Izračunamo razdaljo potega
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    
+    // Preverimo, ali poteg presega minimalno zahtevano razdaljo
+    if (Math.abs(diffX) > SWIPE_THRESHOLD || Math.abs(diffY) > SWIPE_THRESHOLD) {
+        
+        // Če je poteg bolj v smeri X kot Y, se premikamo levo/desno
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (diffX < 0) { // Poteg levo
+                if (velocity.x === 0) velocity = { x: -1, y: 0 };
+            } else { // Poteg desno
+                if (velocity.x === 0) velocity = { x: 1, y: 0 };
+            }
+        } else { // Če je poteg bolj v smeri Y kot X, se premikamo gor/dol
+            if (diffY < 0) { // Poteg gor
+                if (velocity.y === 0) velocity = { x: 0, y: -1 };
+            } else { // Poteg dol
+                if (velocity.y === 0) velocity = { x: 0, y: 1 };
+            }
+        }
     }
 });
 
-document.getElementById('gameCanvas').addEventListener('click', () => {
-    if (isPaused) resetGame();
-});
 
 // Zagon igre po nalaganju slik
 if (imagesLoadedCount === totalImages) {
