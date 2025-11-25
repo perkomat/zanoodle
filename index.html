@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalizirana Kača</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
+        <div id="mobile-controls">
+            <button id="up-btn" data-direction="UP">Gor</button>
+            <div id="side-controls">
+                <button id="left-btn" data-direction="LEFT">Levo</button>
+                <button id="right-btn" data-direction="RIGHT">Desno</button>
+            </div>
+            <button id="down-btn" data-direction="DOWN">Dol</button>
+        </div>
+
+        <div id="score">Točke: 0</div>
+        <div id="game-over-message" class="hidden">
+            IGRA KONČANA! Pritisnite preslednico ali tapnite za ponoven začetek.
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

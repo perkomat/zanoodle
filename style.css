@@ -1,0 +1,86 @@
+/* SPLOŠNO IN CELOZASLONSKO */
+body {
+    margin: 0;
+    overflow: hidden; /* Odstrani drsnike */
+    background-color: #1a1a1a;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    max-width: 95vw;
+    max-height: 95vh;
+}
+
+/* CANVAS */
+#gameCanvas {
+    background-color: #333;
+    border: 5px solid #00f080; /* Svetlo zelena obroba */
+    box-shadow: 0 0 20px rgba(0, 240, 128, 0.5);
+    /* Velikost platna bo dinamično prilagojena v JavaScriptu */
+}
+
+/* TOČKOVANJE IN SPOROČILA */
+#score {
+    margin-top: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+#game-over-message {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #f00;
+    padding: 20px;
+    border: 3px solid #f00;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+/* MOBILNE KONTROLE */
+#mobile-controls {
+    display: none; /* Privzeto skrito na računalnikih */
+    margin-top: 15px;
+    user-select: none; /* Prepreči označevanje */
+    touch-action: manipulation; /* Izboljša odzivnost na dotik */
+}
+
+#mobile-controls button {
+    background-color: #00f080;
+    color: #1a1a1a;
+    border: none;
+    padding: 15px 20px;
+    margin: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#side-controls {
+    display: flex;
+    justify-content: center;
+}
+
+/* PRIKAZ KONTROL SAMO NA MANJŠIH ZASLONIH (MOBILNIH) */
+@media (max-width: 600px) {
+    #mobile-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
