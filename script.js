@@ -51,7 +51,8 @@ const foodImagesSrc = [
 	'hisnikimchi.png',
 	'cicerika.png',
 	'surovi.png',
-	'zan.png'
+	'zan.png',
+	'por.jpeg'
 ];
 const loadedFoodImages = [];
 const totalImages = 1 + foodImagesSrc.length;
