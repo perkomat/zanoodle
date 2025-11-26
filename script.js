@@ -48,7 +48,9 @@ const foodImagesSrc = [
     'kimchi.png',
     'rice.png',
 	'tunatatar.png',
-	'hisnikimchi.png'
+	'hisnikimchi.png',
+	'cicerika.png',
+	'surovi.png'
 ];
 const loadedFoodImages = [];
 const totalImages = 1 + foodImagesSrc.length;
