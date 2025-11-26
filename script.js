@@ -1,13 +1,13 @@
 // --- KONSTANTE ZA HITROST IN TOČKOVANJE ---
 const INITIAL_SPEED_MS = 500; 
-const SPEED_INCREMENT_MS = 20; 
+const SPEED_INCREMENT_MS = 30; 
 const SCORE_PER_FOOD = 1;      
 
 // --- KONSTANTE ZA HRANO ---
 const FOOD_COUNT = 2; // Vedno 2 kosa hrane na polju
 
 // --- KONSTANTE ZA STIL IN VELIKOST ---
-const TILE_SIZE = 0; 
+const TILE_SIZE = 40; 
 const ENLARGED_HEAD_FACTOR = 1; 
 const ENLARGED_FOOD_FACTOR = 1; 
 const BODY_WIDTH = TILE_SIZE * 0.95; 
