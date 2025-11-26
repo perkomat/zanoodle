@@ -50,7 +50,8 @@ const foodImagesSrc = [
 	'tunatatar.png',
 	'hisnikimchi.png',
 	'cicerika.png',
-	'surovi.png'
+	'surovi.png',
+	'zan.png'
 ];
 const loadedFoodImages = [];
 const totalImages = 1 + foodImagesSrc.length;
