@@ -3,43 +3,41 @@ const INITIAL_SPEED_MS = 300;
 const SPEED_INCREMENT_MS = 10; 
 const SCORE_PER_FOOD = 1;      
 
+// --- KONSTANTE ZA HRANO ---
+const FOOD_COUNT = 2; // Vedno 2 kosa hrane na polju
+
 // --- KONSTANTE ZA STIL IN VELIKOST ---
-const TILE_SIZE = 50; 
-
-// Vizualno povečanje glave in hrane brez vpliva na logiko
-const ENLARGED_HEAD_FACTOR = 1.3; 
-const ENLARGED_FOOD_FACTOR = 1.3; 
-
+const TILE_SIZE = 40; 
+const ENLARGED_HEAD_FACTOR = 1; 
+const ENLARGED_FOOD_FACTOR = 1; 
 const BODY_WIDTH = TILE_SIZE * 0.95; 
-const BODY_COLOR = '#FFD700'; 
 const BODY_STROKE_COLOR = '#000000'; 
-const BODY_STROKE_WIDTH = 0.5; // Tanka zunanja obroba
-
-// Konstante za simulacijo "reliefa"
+const BODY_STROKE_WIDTH = 0.5; 
 const RELIEF_MARKER_RADIUS = TILE_SIZE * 0.45; 
 const RELIEF_MARKER_COLOR = '#FFD700'; 
 const RELIEF_MARKER_STROKE_COLOR = '#000000'; 
 const RELIEF_MARKER_STROKE_WIDTH = 1.5; 
 const INTERPOLATION_STEPS = 6; 
-
-const SWIPE_THRESHOLD = 20; // Minimalna razdalja v pikslih za prepoznavo potega
+const SWIPE_THRESHOLD = 20; 
 
 // --- SPLOŠNE KONSTANTE IN INICIALIZACIJA ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
+const scoreDisplay = document.getElementById('score-display'); // POPRAVLJEN ID
 const gameOverMessage = document.getElementById('game-over-message');
 
-let TILE_COUNT;
+let TILE_COUNT_X; 
+let TILE_COUNT_Y;
 let gameLoopInterval;
 let isPaused = false;
 let score = 0;
 let imagesLoadedCount = 0;
+let domContentLoaded = false; 
 
 // --- STANJE IGRE ---
 let snake;
 let velocity;
-let food = []; // Hrana je polje
+let food = []; 
 
 
 // --- SLIKE IN NALAGANJE ---
@@ -55,7 +53,7 @@ const totalImages = 1 + foodImagesSrc.length;
 
 function imageLoaded() {
     imagesLoadedCount++;
-    if (imagesLoadedCount === totalImages) {
+    if (imagesLoadedCount === totalImages && domContentLoaded) { 
         resetGame();
     }
 }
@@ -73,24 +71,28 @@ foodImagesSrc.forEach(src => {
 
 // --- FUNKCIJE ZA PRIPRAVO IN HITROST ---
 
-// CELOZASLONSKI NAČIN Z ADAPTIVNIM SKALIRANJEM
+// FUNKCIJA ZA PRILAGODITEV VELIKOSTI (PRAVOKOTNIK ZA MOBILCE)
 function resizeCanvas() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // Preverimo, ali je naprava mobilna (majhen zaslon ali pokončna orientacija)
-    const isMobile = width < 768 || height > width; 
+    const isMobilePortrait = width < 768 && height > width; 
+    
+    const horizontalMargin = 20;
+    const verticalMargin = 100;
+    const maxMobileWidth = 400;
+    const maxMobileHeight = 700; 
 
-    if (isMobile) {
-        // Na mobilcu: Poskrbimo, da canvas ni prevelik, da polja niso ogromna
-        let size = Math.min(width - 20, height - 100); 
-        size = Math.floor(size / TILE_SIZE) * TILE_SIZE;
+    if (isMobilePortrait) {
+        let optimalWidth = width - horizontalMargin;
+        optimalWidth = Math.min(optimalWidth, maxMobileWidth);
+        canvas.width = Math.floor(optimalWidth / TILE_SIZE) * TILE_SIZE;
         
-        // Omejimo max velikost Canvasa na mobilnem telefonu (npr. 400x400 pikslov)
-        canvas.width = Math.min(size, 400); 
-        canvas.height = Math.min(size, 400); 
+        let optimalHeight = height - verticalMargin;
+        optimalHeight = Math.min(optimalHeight, maxMobileHeight);
+        canvas.height = Math.floor(optimalHeight / TILE_SIZE) * TILE_SIZE;
+        
     } else {
-        // Na PC/Desktop: Uporabimo večji del zaslona
         let size = Math.min(width - 50, height - 150); 
         size = Math.floor(size / TILE_SIZE) * TILE_SIZE;
         
@@ -98,17 +100,17 @@ function resizeCanvas() {
         canvas.height = size;
     }
     
-    TILE_COUNT = canvas.width / TILE_SIZE;
+    TILE_COUNT_X = canvas.width / TILE_SIZE;
+    TILE_COUNT_Y = canvas.height / TILE_SIZE;
 }
 
 function adjustSpeed() {
-    // Dinamično pospeševanje nad 10 točk
     if (score >= 10) {
         const speedLevel = Math.floor((score - 10) / 10) + 1; 
         
         const newInterval = Math.max(
             INITIAL_SPEED_MS - (speedLevel * SPEED_INCREMENT_MS), 
-            50 // Minimalna hitrost 50 ms
+            50 
         );
         
         if (gameLoopInterval) clearInterval(gameLoopInterval);
@@ -120,7 +122,7 @@ function resetGame() {
     resizeCanvas();
 
     snake = [
-        { x: Math.floor(TILE_COUNT / 2), y: Math.floor(TILE_COUNT / 2) }
+        { x: Math.floor(TILE_COUNT_X / 2), y: Math.floor(TILE_COUNT_Y / 2) } 
     ];
     
     velocity = { x: 1, y: 0 };
@@ -129,21 +131,23 @@ function resetGame() {
     scoreDisplay.textContent = `Točke: ${score}`;
     gameOverMessage.classList.add('hidden');
 
-    placeFood();
+    food = []; // Seznam hrane se izprazni samo ob zagonu!
+    placeFood(); 
 
     if (gameLoopInterval) clearInterval(gameLoopInterval);
     gameLoopInterval = setInterval(gameLoop, INITIAL_SPEED_MS); 
 }
 
 function placeFood() {
-    food = []; 
+    // foodToAdd bo ob zagonu 2, ob zaužitju pa 1
+    const foodToAdd = FOOD_COUNT - food.length; 
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < foodToAdd; i++) {
         let newFoodPosition;
         do {
             newFoodPosition = { 
-                x: Math.floor(Math.random() * TILE_COUNT), 
-                y: Math.floor(Math.random() * TILE_COUNT) 
+                x: Math.floor(Math.random() * TILE_COUNT_X), 
+                y: Math.floor(Math.random() * TILE_COUNT_Y) 
             };
         } while (
             snake.some(segment => segment.x === newFoodPosition.x && segment.y === newFoodPosition.y) ||
@@ -184,10 +188,9 @@ function gameLoop() {
         scoreDisplay.textContent = `Točke: ${score}`;
         
         food.splice(foodIndex, 1);
-
-        if (food.length < 2) {
-            placeFood();
-        }
+        
+        // Doda samo 1 manjkajoči kos hrane
+        placeFood(); 
         
         adjustSpeed(); 
         
@@ -199,7 +202,7 @@ function gameLoop() {
 }
 
 function checkCollision(head) {
-    if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) {
+    if (head.x < 0 || head.x >= TILE_COUNT_X || head.y < 0 || head.y >= TILE_COUNT_Y) {
         return true;
     }
 
@@ -225,10 +228,8 @@ function draw() {
     ctx.fillStyle = '#333';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // KLJUČNO ZA TRANSPARENTNOST PNG slik (prevzeta nastavitev, ki včasih potrebuje ponovno potrditev)
     ctx.globalCompositeOperation = 'source-over'; 
 
-    // Nariši hrano (povečana slika)
     food.forEach(f => {
         if (f.image.complete) {
             let enlargedFoodSize = TILE_SIZE * ENLARGED_FOOD_FACTOR;
@@ -245,10 +246,8 @@ function draw() {
         }
     });
     
-    // Nariši kačo (začetek reliefne poti)
     if (snake.length === 0) return;
 
-    // 1. Nariši celotno črno obrobo telesa
     ctx.beginPath();
     ctx.moveTo(snake[0].x * TILE_SIZE + TILE_SIZE / 2, snake[0].y * TILE_SIZE + TILE_SIZE / 2);
 
@@ -272,7 +271,6 @@ function draw() {
     ctx.strokeStyle = BODY_STROKE_COLOR; 
     ctx.stroke();
 
-    // 2. Risanje reliefnih oznak (zapolnjenih krogov) za relief
     for (let i = 1; i < snake.length; i++) {
         for (let j = 0; j < INTERPOLATION_STEPS; j++) {
             const factor = j / INTERPOLATION_STEPS;
@@ -294,7 +292,6 @@ function draw() {
         }
     }
 
-    // 3. Risanje glave na vrhu (povečana slika)
     if (headImage.complete) { 
         let enlargedHeadSize = TILE_SIZE * ENLARGED_HEAD_FACTOR;
         let offsetX = (enlargedHeadSize - TILE_SIZE) / 2;
@@ -315,7 +312,6 @@ function draw() {
 
 window.addEventListener('resize', resetGame);
 
-// Standardne kontrole za PC (Arrow keys, W A S D)
 document.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'ArrowUp':
@@ -340,52 +336,51 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Spremenljivke za sledenje potegu (swipe)
 let touchStartX = 0;
 let touchStartY = 0;
 
-canvas.addEventListener('touchstart', (e) => {
-    if (isPaused) {
-        resetGame();
-        return;
-    }
-    // Shranimo začetno pozicijo dotika
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
-    e.preventDefault(); // Prepreči scroll in zoom
-}, { passive: false });
+if (canvas) { 
+    canvas.addEventListener('touchstart', (e) => {
+        if (isPaused) {
+            resetGame();
+            return;
+        }
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+        e.preventDefault(); 
+    }, { passive: false });
 
-canvas.addEventListener('touchend', (e) => {
-    // Shranimo končno pozicijo dotika
-    const touchEndX = e.changedTouches[0].screenX;
-    const touchEndY = e.changedTouches[0].screenY;
+    canvas.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
 
-    // Izračunamo razdaljo potega
-    const diffX = touchEndX - touchStartX;
-    const diffY = touchEndY - touchStartY;
-    
-    // Preverimo, ali poteg presega minimalno zahtevano razdaljo
-    if (Math.abs(diffX) > SWIPE_THRESHOLD || Math.abs(diffY) > SWIPE_THRESHOLD) {
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
         
-        // Če je poteg bolj v smeri X kot Y, se premikamo levo/desno
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            if (diffX < 0) { // Poteg levo
-                if (velocity.x === 0) velocity = { x: -1, y: 0 };
-            } else { // Poteg desno
-                if (velocity.x === 0) velocity = { x: 1, y: 0 };
-            }
-        } else { // Če je poteg bolj v smeri Y kot X, se premikamo gor/dol
-            if (diffY < 0) { // Poteg gor
-                if (velocity.y === 0) velocity = { x: 0, y: -1 };
-            } else { // Poteg dol
-                if (velocity.y === 0) velocity = { x: 0, y: 1 };
+        if (Math.abs(diffX) > SWIPE_THRESHOLD || Math.abs(diffY) > SWIPE_THRESHOLD) {
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) { // Poteg levo
+                    if (velocity.x === 0) velocity = { x: -1, y: 0 };
+                } else { // Poteg desno
+                    if (velocity.x === 0) velocity = { x: 1, y: 0 };
+                }
+            } else { // Poteg gor/dol
+                if (diffY < 0) { // Poteg gor
+                    if (velocity.y === 0) velocity = { x: 0, y: -1 };
+                } else { // Poteg dol
+                    if (velocity.y === 0) velocity = { x: 0, y: 1 };
+                }
             }
         }
+    });
+}
+
+
+// ZAGON
+document.addEventListener('DOMContentLoaded', () => {
+    domContentLoaded = true; 
+    if (imagesLoadedCount === totalImages) {
+        resetGame();
     }
 });
-
-
-// Zagon igre po nalaganju slik
-if (imagesLoadedCount === totalImages) {
-    resetGame();
-}
