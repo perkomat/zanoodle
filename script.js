@@ -44,9 +44,11 @@ let food = [];
 const headImage = new Image();
 const foodImagesSrc = [
     'ramen.png', 
-    'friedchic.png',
+    'friedchicken.png',
     'kimchi.png',
-    'rice.png'
+    'rice.png',
+	'tunatatar.png',
+	'hisnikimchi.png'
 ];
 const loadedFoodImages = [];
 const totalImages = 1 + foodImagesSrc.length;
