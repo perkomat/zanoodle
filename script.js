@@ -47,9 +47,7 @@ const foodImagesSrc = [
     'friedchicken.png',
     'kimchi.png',
     'rice.png',
-	'tunatatar.png',
-	'hisnikimchi.png',
-	'cicerika.png',
+	'tatar.png',
 	'surovi.png',
 	'zan.png',
 	'por.jpeg'
