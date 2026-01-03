@@ -43,14 +43,14 @@ let food = [];
 // --- SLIKE IN NALAGANJE ---
 const headImage = new Image();
 const foodImagesSrc = [
-    'ramen.png', 
     'friedchicken.png',
-    'kimchi.png',
     'rice.png',
 	'tatar.png',
 	'surovi.png',
 	'zan.png',
-	'por.jpeg'
+	'por.png',
+	'harmonika.png',
+	'chilly.png'
 ];
 const loadedFoodImages = [];
 const totalImages = 1 + foodImagesSrc.length;
