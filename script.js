@@ -26,7 +26,7 @@ let food = [];
 
 // --- SLIKE ---
 const headImage = new Image();
-const foodImagesSrc = ['friedchicken.png', 'tatar.png', 'surovi.png', 'zan.png', 'por.png', 'harmonika.png', 'chilly.png'];
+const foodImagesSrc = ['friedchicken.png', 'tatar.png', 'surovi.png', 'zan.png', 'por.png', 'harmonika.png', 'chilly.png', 'msg.png', 'nudli.png', 'potica.png'];
 const loadedFoodImages = [];
 let imagesLoadedCount = 0;
 
