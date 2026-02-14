@@ -44,7 +44,6 @@ let food = [];
 const headImage = new Image();
 const foodImagesSrc = [
     'friedchicken.png',
-    'rice.png',
 	'tatar.png',
 	'surovi.png',
 	'zan.png',
