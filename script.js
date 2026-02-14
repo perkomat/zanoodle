@@ -150,36 +150,34 @@ function draw() {
 
     if (snake.length === 0) return;
 
-    // 3. Risanje povezanega telesa s prekrivanjem (Interpolacija)
-    // Gremo od repa proti glavi, da se krogci pravilno nalagajo drug čez drugega
+    // 3. Risanje CEKINČKOV (od zadaj naprej)
+    // Rišemo od zadnjega elementa (repa) proti prvemu (glavi)
     for (let i = snake.length - 1; i > 0; i--) {
         const current = snake[i];
         const next = snake[i - 1];
 
-        // Za vsak segment narišemo več krogcev med trenutnim in naslednjim poljem
+        // Interpolacija poskrbi, da so krogci gostejši in se lepo prekrivajo
         for (let j = 0; j < INTERPOLATION_STEPS; j++) {
             const factor = j / INTERPOLATION_STEPS;
             
-            // Izračun vmesne pozicije
             const x = (current.x + (next.x - current.x) * factor) * TILE_SIZE + TILE_SIZE / 2;
             const y = (current.y + (next.y - current.y) * factor) * TILE_SIZE + TILE_SIZE / 2;
 
             ctx.beginPath();
             ctx.arc(x, y, RELIEF_MARKER_RADIUS, 0, Math.PI * 2);
+            
+            // Polnilo (rumena barva)
             ctx.fillStyle = RELIEF_MARKER_COLOR; // #FDFD96
             ctx.fill();
+
+            // ROB CEKINČKA (to ustvari videz prekrivanja)
+            ctx.strokeStyle = '#000000'; // Črn rob
+            ctx.lineWidth = 1.5;         // Debelina roba cekinčka
+            ctx.stroke();
         }
     }
 
-    // 4. Zadnji krogec pod glavo (da ni luknje med telesom in glavo)
-    const tailOfHeadX = snake[0].x * TILE_SIZE + TILE_SIZE / 2;
-    const tailOfHeadY = snake[0].y * TILE_SIZE + TILE_SIZE / 2;
-    ctx.beginPath();
-    ctx.arc(tailOfHeadX, tailOfHeadY, RELIEF_MARKER_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = RELIEF_MARKER_COLOR;
-    ctx.fill();
-
-    // 5. Glava na vrhu
+    // 4. Glava na koncu, da prekrije zadnji cekinček
     ctx.drawImage(headImage, snake[0].x * TILE_SIZE, snake[0].y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
