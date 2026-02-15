@@ -2,9 +2,9 @@
 const INITIAL_SPEED_MS = 500; 
 const SPEED_INCREMENT_MS = 40; 
 const SCORE_PER_FOOD = 1;      
-const FOOD_COUNT = 2; 
+const FOOD_COUNT = 3; 
 
-const TILE_SIZE = 45; 
+const TILE_SIZE = 60; 
 const BODY_WIDTH = TILE_SIZE * 0.95; 
 const RELIEF_MARKER_RADIUS = TILE_SIZE * 0.45; 
 const RELIEF_MARKER_COLOR = '#FDFD96'; 
@@ -27,30 +27,6 @@ let food = [];
 // --- SLIKE ---
 const headImage = new Image();
 const foodImagesSrc = ['friedchicken.png', 'tatar.png', 'surovi.png', 'zan.png', 'por.png', 'harmonika.png', 'chilly.png', 'msg.png', 'nudli.png', 'potica.png', 'raznjic.png', 'gyoze.png', 'icetea.png', 'cebu.png', 'friedegg.png', 'ingver.png', 'gobe.png', 'musnica.png','biovino.png', 'chilioil.png', 'klobasa.png', 'burger2.png', 'hotdog.png', 'kraca.png'];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const loadedFoodImages = [];
 let imagesLoadedCount = 0;
