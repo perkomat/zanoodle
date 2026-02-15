@@ -1,6 +1,6 @@
 // --- KONSTANTE ---
-const INITIAL_SPEED_MS = 1000; 
-const SPEED_INCREMENT_MS = 200; 
+const INITIAL_SPEED_MS = 600; 
+const SPEED_INCREMENT_MS = 40; 
 const SCORE_PER_FOOD = 1;      
 const FOOD_COUNT = 3; 
 
