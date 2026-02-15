@@ -1,10 +1,10 @@
 // --- KONSTANTE ---
-const INITIAL_SPEED_MS = 600; 
-const SPEED_INCREMENT_MS = 40; 
+const INITIAL_SPEED_MS = 550; 
+const SPEED_INCREMENT_MS = 45; 
 const SCORE_PER_FOOD = 1;      
 const FOOD_COUNT = 3; 
 
-const TILE_SIZE = 55; 
+const TILE_SIZE = 50; 
 const BODY_WIDTH = TILE_SIZE * 0.95; 
 const RELIEF_MARKER_RADIUS = TILE_SIZE * 0.45; 
 const RELIEF_MARKER_COLOR = '#FDFD96'; 
