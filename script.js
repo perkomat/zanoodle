@@ -26,7 +26,7 @@ let food = [];
 
 // --- SLIKE ---
 const headImage = new Image();
-const foodImagesSrc = ['friedchicken.png', 'tatar.png', 'surovi.png', 'zan.png', 'por.png', 'harmonika.png', 'chilly.png', 'msg.png', 'nudli.png', 'potica.png', 'raznjic.png', 'gyoze.png', 'icetea.png', 'cebu.png', 'friedegg.png', 'ingver.png', 'gobe.png', 'musnica.png','biovino.png', 'chilioil.png', 'klobasa.png', 'burger2.png', 'hotdog.png', 'kraca.png', 'pivo.png',];
+const foodImagesSrc = ['friedchicken.png', 'tatar.png', 'zan.png', 'por.png', 'harmonika.png', 'chilly.png', 'msg.png', 'nudli.png', 'potica.png', 'raznjic.png', 'gyoze.png', 'icetea.png', 'cebu.png', 'friedegg.png', 'ingver.png', 'gobe.png', 'musnica.png','biovino.png', 'chilioil.png', 'klobasa.png', 'burger2.png', 'hotdog.png', 'kraca.png', 'pivo.png',];
 
 const loadedFoodImages = [];
 let imagesLoadedCount = 0;
